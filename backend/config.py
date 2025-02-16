@@ -18,7 +18,7 @@ else:
 if not firebase_admin._apps:
     cred = credentials.Certificate(os.getenv('FIREBASE_CREDENTIALS'))
     firebase_admin.initialize_app(cred, {
-        'storageBucket': 'ai-billboards-63f04.appspot.com' 
+        'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET') 
     })
         
     # Get storage bucket reference
