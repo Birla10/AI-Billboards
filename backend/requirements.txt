@@ -1,4 +1,7 @@
 deepface
 opencv-python
-tf_keras
+tf-keras
 geocoder
+google-cloud-vision
+firebase-admin
+python-multipart
