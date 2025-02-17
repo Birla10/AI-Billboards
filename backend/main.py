@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 import uvicorn
 from data_fetching.weather import WeatherService
 from data_fetching.currentTime import TimeClassifier
-from database import add_ads_to_firebase
+from database import process_new_ads
 
 app = FastAPI()
 
@@ -21,11 +21,9 @@ async def upload_video(file: UploadFile = File(...)):
     """
     Endpoint to upload a video file.
     """
-    add_ads = add_ads_to_firebase.FirebaseUploader()
+    add_ads = process_new_ads.ProcessNewAds()
     try:
-        
-        print("in endpoint...")
-        add_ads.upload_video(file)
+        add_ads.process_ad(file)
         return JSONResponse(content={"message": "Video uploaded successfully!"})
     except Exception as e:
         return JSONResponse(content={"message": f"Video upload failed: {str(e)}"}, status_code=500)

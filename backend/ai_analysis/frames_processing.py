@@ -3,16 +3,13 @@ import os
 from dotenv import load_dotenv
 
 class FrameAnalyzer:
-    def __init__(self, frames_folder="frames"):
+    def __init__(self):
         """Initialize the FrameAnalyzer with the folder containing frames."""
-        
-        # Set the path to the frames folder
-        self.frames_folder = frames_folder
         
         # Initialize the Google Cloud Vision API client
         self.client = vision.ImageAnnotatorClient()
 
-    def analyze_image(self, image_path):
+    def __analyze_image(self, image_path):
         """Analyze an image using Google Cloud Vision API to extract tags."""
         
         # Read the image file
@@ -27,25 +24,35 @@ class FrameAnalyzer:
         labels = response.label_annotations
         if not labels:
             print(f"No labels found for image: {image_path}")
-            return []
+            return set()
         
         # Extract labels (tags) from the response
-        tags = [label.description for label in labels]
+        tags = {label.description for label in labels}
         
         # Handle errors
         if response.error.message:
             raise Exception(f"{response.error.message}")
         
         # Print the tags
-        print(f"Image: {image_path}, Tags: {tags}")
+        #print(f"Image: {image_path}, Tags: {tags}")
         return tags
 
-    def analyze_all_frames(self):
-        if not os.path.exists(self.frames_folder):
-            print(f"Frames folder '{self.frames_folder}' does not exist.")
+    def analyze_all_frames(self, frames_folder):
+        """Analyze all frames in the specified folder and return a set of tags."""
+        
+        tags = set()
+        if not os.path.exists(frames_folder):
+            print(f"Frames folder '{frames_folder}' does not exist.")
         else:
             # Iterate through all files in the frames folder
-            for filename in os.listdir(self.frames_folder):
-                image_path = os.path.join(self.frames_folder, filename)
-                self.analyze_image(image_path)
+            try:
+                for filename in os.listdir(frames_folder):
+                    image_path = os.path.join(frames_folder, filename)
+                    sub_tags = self.__analyze_image(image_path)
+                    tags = tags.union(sub_tags)
+            except Exception as e:
+                print(f"Error processing frames: {e}")
+            
+        # Return the tags for all frames
+        return tags
 

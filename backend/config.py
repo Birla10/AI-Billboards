@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import firebase_admin
-from firebase_admin import credentials, storage
+from firebase_admin import credentials, storage, firestore
 
 load_dotenv()
 # Get the JSON key path
@@ -23,4 +23,6 @@ if not firebase_admin._apps:
         
     # Get storage bucket reference
     firebase_bucket = storage.bucket()
+    
+    ai_billboards_db = firestore.client(database_id=os.getenv('FIRESTORE_DATABASE_ID'))
 

@@ -1,13 +1,18 @@
 import cv2
 import os
+from pathlib import Path
 
-def extract_frames(video_path, output_folder, frame_rate=1):
+def extract_frames(video_path, frame_rate=1):
     """Extract frames from a video file and save them as images."""
     
-    # Check if the video file exists
-    os.makedirs(output_folder, exist_ok=True)
-    if not os.path.isfile(video_path):
-        raise FileNotFoundError(f"Video file {video_path} not found.")
+    output_folder = f"resources/frames/{Path(video_path).stem}/"
+    
+    # Check if the output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
+    if video_path is None:
+        raise ValueError("No video path provided.")
     
     # Open the video file
     cap = cv2.VideoCapture(video_path)
