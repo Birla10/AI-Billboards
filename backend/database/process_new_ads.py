@@ -28,20 +28,21 @@ class ProcessNewAds:
         
         # Analyze the frames to extract tags
         frame_analyzer = FrameAnalyzer()
-        tags = frame_analyzer.analyze_all_frames(f"resources/frames/yoga/")
+        tags = frame_analyzer.analyze_all_frames(f"resources/frames/{Path(file_path).stem}/")
         print(f"Extracted tags: {tags}")        
         
         # Upload the video to Firebase Storage
         storage_url = self.__upload_ad_to_firebase_storage(file_path)
         
         # Store the tags and image url in Firestore
-        doc_ref = ai_billboards_db.collection('new_ads_data').document(file.filename)
-        doc_ref.set({"tags": tags, "image_url": "gs://ai-billboards-63f04.firebasestorage.app/new_ads/yoga.mp4"})
+        doc_ref = ai_billboards_db.collection(os.getenv('FIRESTORE_COLLECTION_ID')).document(file.filename)
+        doc_ref.set({"tags": tags, "image_url": storage_url})
         
         print("Tags and image URL stored in Firestore.")
         
         #Remove the file after processing
-        os.remove(file_path)  
+        os.remove(file_path)
+        os.remove(f"resources/frames/{Path(file_path).stem}/")  
     
     def __save_file(self, file):
         """
@@ -83,5 +84,4 @@ class ProcessNewAds:
         
         # Upload the file
         blob.upload_from_filename(file_path)
-        print(f'File {Path(file_path).name} uploaded to {f"gs://{destination_blob_name}"}.')
         return f"gs://{firebase_bucket}/{destination_blob_name}"
