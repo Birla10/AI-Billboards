@@ -5,10 +5,12 @@ import os
 from pathlib import Path
 from video_processing.videos_to_frames import extract_frames
 from ai_analysis.frames_processing import FrameAnalyzer
+import shutil
 
 class ProcessNewAds:
     def __init__(self):
         self.bucket = firebase_bucket
+        self.bucket_name = os.getenv('FIREBASE_STORAGE_BUCKET')
 
     def process_ad(self, file, make_public=False):
         """
@@ -42,7 +44,7 @@ class ProcessNewAds:
         
         #Remove the file after processing
         os.remove(file_path)
-        os.remove(f"resources/frames/{Path(file_path).stem}/")  
+        shutil.rmtree(f"resources/frames/{Path(file_path).stem}/")  
     
     def __save_file(self, file):
         """
@@ -77,11 +79,11 @@ class ProcessNewAds:
         if not file_path:
             raise Exception("File could not be saved.")
                 
-        destination_blob_name = 'new_ads/' + Path(file_path).name
+        destination_blob_name = os.getenv('FIREBASE_ADS_FOLDER') + Path(file_path).name
         
         print(f"Destination Blob Name: {destination_blob_name}")
         blob = self.bucket.blob(destination_blob_name)
         
         # Upload the file
         blob.upload_from_filename(file_path)
-        return f"gs://{firebase_bucket}/{destination_blob_name}"
+        return f"gs://{self.bucket_name}/{destination_blob_name}"

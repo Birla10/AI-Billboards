@@ -5,7 +5,7 @@ from data_fetching.weather import WeatherService
 from data_fetching.currentTime import TimeClassifier
 from database import process_new_ads
 
-app = FastAPI()
+app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
 
 @app.get("/endpoint")
 async def read_endpoint():

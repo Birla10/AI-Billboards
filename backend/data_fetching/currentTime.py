@@ -2,6 +2,7 @@ from datetime import datetime
 
 class TimeClassifier:
     def __init__(self):
+        self.current_month = datetime.now().month
         self.current_time = datetime.now().time()
 
     def get_time_period(self):
@@ -17,4 +18,14 @@ class TimeClassifier:
             return "Dusk"
         else:
             return "Night"
+        
+    def get_month(self):
+        if(self.current_month >= 3 and self.current_month <= 5):
+            return "Spring"
+        elif(self.current_month >= 6 and self.current_month <= 8):
+            return "Summer"
+        elif(self.current_month >= 9 and self.current_month <= 11):
+            return "Autumn/Fall"
+        else:
+            return "Winter"
 
