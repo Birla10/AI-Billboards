@@ -1,6 +1,7 @@
 from google.cloud import vision
 import os
-from dotenv import load_dotenv
+from ai_analysis.generate_tags import generate_tags
+
 
 class FrameAnalyzer:
     def __init__(self):
@@ -33,8 +34,6 @@ class FrameAnalyzer:
         if response.error.message:
             raise Exception(f"{response.error.message}")
         
-        # Print the tags
-        #print(f"Image: {image_path}, Tags: {tags}")
         return tags
 
     def analyze_all_frames(self, frames_folder):
@@ -52,7 +51,10 @@ class FrameAnalyzer:
                     tags = tags.union(sub_tags)
             except Exception as e:
                 print(f"Error processing frames: {e}")
-            
+        
+        # Generate more tags using the OpenAI API
+        tags = tags.union({generate_tags(tags)})
+    
         # Return the tags for all frames
         return tags
 
