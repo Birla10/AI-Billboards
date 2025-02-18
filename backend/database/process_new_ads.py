@@ -5,8 +5,9 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from video_processing.videos_to_frames import extract_frames
-from ai_analysis.frames_processing import FrameAnalyzer
+from ai_analysis.cloud_vision_frame_processing import FrameAnalyzer
 import shutil
+from ai_analysis.openai_clip_frame_processing import CLIPFrameProcessor
 
 class ProcessNewAds:
     def __init__(self):
@@ -23,22 +24,26 @@ class ProcessNewAds:
         :param file: The uploaded ad file.
         """
                     
-        # #Save the ad file locally
-        # file_path = self.__save_file(file)
+        #Save the ad file locally
+        file_path = self.__save_file(file)
         
-        # #Extract frames from the video
-        # extract_frames(file_path)
+        #Extract frames from the video
+        extract_frames(file_path)
         
         # Analyze the frames to extract tags
         frame_analyzer = FrameAnalyzer()
-        tags = frame_analyzer.analyze_all_frames(f"resources/frames/Skin care/")   
+        obj_tags = frame_analyzer.analyze_all_frames(f"resources/frames/{Path(file_path).stem}/")   
         
-        # # Upload the video to Firebase
-        # self.__upload_ad_to_firebase_storage(file_path, tags)
+        clip_processor = CLIPFrameProcessor()
+        clip_tags = clip_processor.process_video(file_path)   
+        print("clip_tags ", clip_tags)
         
-        # #Remove the file after processing
-        # os.remove(file_path)
-        # shutil.rmtree(f"resources/frames/{Path(file_path).stem}/")  
+        # Upload the video to Firebase
+        self.__upload_ad_to_firebase_storage(file_path, obj_tags)
+        
+        #Remove the file after processing
+        os.remove(file_path)
+        shutil.rmtree(f"resources/frames/{Path(file_path).stem}/")  
     
     def __save_file(self, file):
         """

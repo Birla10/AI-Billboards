@@ -2,7 +2,6 @@ from google.cloud import vision
 import os
 from ai_analysis.generate_tags import generate_tags
 
-
 class FrameAnalyzer:
     def __init__(self):
         """Initialize the FrameAnalyzer with the folder containing frames."""
