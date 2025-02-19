@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, storage, firestore
+from pinecone import Pinecone
 
 load_dotenv()
 # Get the JSON key path
@@ -23,6 +24,7 @@ if not firebase_admin._apps:
         
     # Get storage bucket reference
     firebase_bucket = storage.bucket()
-    
     ai_billboards_db = firestore.client(database_id=os.getenv('FIRESTORE_DATABASE_ID'))
+    
+pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 

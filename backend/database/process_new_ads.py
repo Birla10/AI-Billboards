@@ -1,49 +1,51 @@
-import firebase_admin
-from firebase_admin import credentials, storage
-from config import firebase_bucket, ai_billboards_db
+#from config import firebase_bucket, ai_billboards_db
 import os
 from dotenv import load_dotenv
 from pathlib import Path
 from video_processing.videos_to_frames import extract_frames
 from ai_analysis.cloud_vision_frame_processing import FrameAnalyzer
 import shutil
-from ai_analysis.openai_clip_frame_processing import CLIPFrameProcessor
+from ai_analysis.create_embeddings import CreateEmbeddings
+from database.insert_embeddings import create_index, get_indexes
 
 class ProcessNewAds:
     def __init__(self):
         
-        load_dotenv()
-        self.bucket = firebase_bucket
-        self.bucket_name = os.getenv('FIREBASE_STORAGE_BUCKET')
-        self.bucker_folder = os.getenv('FIREBASE_ADS_FOLDER')
-        self.firestore_collection_id = os.getenv('FIRESTORE_COLLECTION_ID')
+        # load_dotenv()
+        # self.bucket = firebase_bucket
+        # self.bucket_name = os.getenv('FIREBASE_STORAGE_BUCKET')
+        # self.bucker_folder = os.getenv('FIREBASE_ADS_FOLDER')
+        # self.firestore_collection_id = os.getenv('FIRESTORE_COLLECTION_ID')
+        print("")
 
     def process_ad(self, file):
         """ 
         Process the uploaded ad file.
         :param file: The uploaded ad file.
         """
-                    
-        #Save the ad file locally
-        file_path = self.__save_file(file)
+
+        get_indexes(self, "context-embeddings")
+        # #Save the ad file locally
+        # file_path = self.__save_file(file)
         
-        #Extract frames from the video
-        extract_frames(file_path)
+        # #Extract frames from the video
+        # extract_frames(file_path)
         
-        # Analyze the frames to extract tags
-        frame_analyzer = FrameAnalyzer()
-        obj_tags = frame_analyzer.analyze_all_frames(f"resources/frames/{Path(file_path).stem}/")   
+        # # Analyze the frames to extract tags
+        # frame_analyzer = FrameAnalyzer()
+        # obj_tags = frame_analyzer.analyze_all_frames(f"resources/frames/{Path(file_path).stem}/")   
         
-        clip_processor = CLIPFrameProcessor()
-        clip_tags = clip_processor.process_video(file_path)   
-        print("clip_tags ", clip_tags)
+        # create_embeddings = CreateEmbeddings()
         
-        # Upload the video to Firebase
-        self.__upload_ad_to_firebase_storage(file_path, obj_tags)
+        # create_embeddings.create_obj_embeddings(self, obj_tags)
+        # create_embeddings.create_context_embeddings(file_path)   
+                
+        # # Upload the video to Firebase
+        # self.__upload_ad_to_firebase_storage(file_path, obj_tags)
         
-        #Remove the file after processing
-        os.remove(file_path)
-        shutil.rmtree(f"resources/frames/{Path(file_path).stem}/")  
+        # #Remove the file after processing
+        # os.remove(file_path)
+        # shutil.rmtree(f"resources/frames/{Path(file_path).stem}/")  
     
     def __save_file(self, file):
         """
@@ -89,7 +91,7 @@ class ProcessNewAds:
         blob.upload_from_filename(file_path)
             
         # Store the tags and image url in Firestore
-        doc_ref = ai_billboards_db.collection(self.firestore_collection_id).document(Path(file_path).name)
-        doc_ref.set({"tags": tags, "image_url": f"gs://{self.bucket_name}/{destination_blob_name}"})
+        # doc_ref = ai_billboards_db.collection(self.firestore_collection_id).document(Path(file_path).name)
+        # doc_ref.set({"tags": tags, "image_url": f"gs://{self.bucket_name}/{destination_blob_name}"})
         
         print("Tags and image URL stored in Firestore.")

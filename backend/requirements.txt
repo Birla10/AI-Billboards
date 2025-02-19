@@ -5,3 +5,6 @@ geocoder
 google-cloud-vision
 firebase-admin
 python-multipart
+torch
+geocoder
+pinecone[grpc]

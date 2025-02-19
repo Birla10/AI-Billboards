@@ -1,6 +1,5 @@
 from google.cloud import vision
 import os
-from ai_analysis.generate_tags import generate_tags
 
 class FrameAnalyzer:
     def __init__(self):
@@ -50,10 +49,7 @@ class FrameAnalyzer:
                     tags = tags.union(sub_tags)
             except Exception as e:
                 print(f"Error processing frames: {e}")
-        
-        # Generate more tags using the OpenAI API
-        tags = tags.union({generate_tags(tags)})
-    
+           
         # Return the tags for all frames
         return tags
 

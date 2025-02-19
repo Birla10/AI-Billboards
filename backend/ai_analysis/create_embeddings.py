@@ -3,8 +3,9 @@ import torch
 import clip
 from PIL import Image
 import numpy as np
+from database.insert_embeddings import InsertEmbeddings 
 
-class CLIPFrameProcessor:
+class CreateEmbeddings:
     def __init__(self, model_name='ViT-B/32', device='cuda' if torch.cuda.is_available() else 'cpu', frame_skip=5):
         """
         Initialize the CLIP model and preprocessing pipeline.
@@ -16,7 +17,7 @@ class CLIPFrameProcessor:
         self.model, self.preprocess = clip.load(model_name, device=self.device)
         self.frame_skip = frame_skip  # Process every nth frame
 
-    def process_frame(self, frame):
+    def __process_frame(self, frame):
         """
         Process a single frame and extract its CLIP embedding.
         :param frame: The input frame (image) to process.   
@@ -31,7 +32,9 @@ class CLIPFrameProcessor:
         
         return image_features.cpu().numpy().flatten()
     
-    def process_video(self, video_path):
+    def create_context_embeddings(self, video_path):
+        
+        insert_embeds = InsertEmbeddings
         cap = cv2.VideoCapture(video_path)
         frame_embeddings = []
         frame_count = 0
@@ -43,10 +46,21 @@ class CLIPFrameProcessor:
 
             # Skip frames to reduce redundant data
             if frame_count % self.frame_skip == 0:
-                embedding = self.process_frame(frame)
+                embedding = self.__process_frame(frame)
                 frame_embeddings.append(embedding)
 
             frame_count += 1
 
         cap.release()
+        
+        insert_embeds.insert_obj_embeddings(self, )
         return np.array(frame_embeddings)  # Convert to NumPy array for efficient storage
+    
+    
+    def create_obj_embeddings(self, object_tags):
+        """
+        Create text embeddings for the tags using CLIP.
+        :return: Dictionary of tags and their corresponding CLIP embeddings.
+        """
+        
+        
