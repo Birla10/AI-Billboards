@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, storage, firestore
 from pinecone import Pinecone
+from openai import OpenAI
 
 load_dotenv()
 # Get the JSON key path
@@ -28,3 +29,4 @@ if not firebase_admin._apps:
     
 pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 
+client = OpenAI(api_key="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")

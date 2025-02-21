@@ -1,10 +1,9 @@
 import os
-from openai import OpenAI
 from dotenv import load_dotenv
-import os
+from config import client
 
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 gpt_user_content = os.getenv("GPT_USER_CONTENT")
 gpt_system_content = os.getenv("GPT_SYSTEM_CONTENT")
 

@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 import uvicorn
 from data_fetching.weather import WeatherService
 from data_fetching.currentTime import TimeClassifier
-from database import process_new_ads
+from services import process_new_ads
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
 

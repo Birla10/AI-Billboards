@@ -33,7 +33,7 @@ class FrameAnalyzer:
             raise Exception(f"{response.error.message}")
         
         return tags
-
+    
     def analyze_all_frames(self, frames_folder):
         """Analyze all frames in the specified folder and return a set of tags."""
         

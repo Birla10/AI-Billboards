@@ -4,6 +4,7 @@ import clip
 from PIL import Image
 import numpy as np
 from database.insert_embeddings import InsertEmbeddings 
+from config import client
 
 class CreateEmbeddings:
     def __init__(self, model_name='ViT-B/32', device='cuda' if torch.cuda.is_available() else 'cpu', frame_skip=5):
@@ -34,7 +35,7 @@ class CreateEmbeddings:
     
     def create_context_embeddings(self, video_path):
         
-        insert_embeds = InsertEmbeddings
+        insert_embeds = InsertEmbeddings()
         cap = cv2.VideoCapture(video_path)
         frame_embeddings = []
         frame_count = 0
@@ -62,5 +63,15 @@ class CreateEmbeddings:
         Create text embeddings for the tags using CLIP.
         :return: Dictionary of tags and their corresponding CLIP embeddings.
         """
+        print("inside createing embeddings")
         
+        
+        
+        response = client.embeddings.create(
+            input = object_tags,
+            model = "text-embedding-3-small",
+            encoding_format="float"
+        )
+            
+        print(response)
         
