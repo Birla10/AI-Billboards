@@ -7,6 +7,7 @@ from database.insert_embeddings import InsertEmbeddings
 from config import client
 
 class CreateEmbeddings:
+    
     def __init__(self, model_name='ViT-B/32', device='cuda' if torch.cuda.is_available() else 'cpu', frame_skip=5):
         """
         Initialize the CLIP model and preprocessing pipeline.
@@ -17,6 +18,7 @@ class CreateEmbeddings:
         self.device = device
         self.model, self.preprocess = clip.load(model_name, device=self.device)
         self.frame_skip = frame_skip  # Process every nth frame
+        self.insert_embeddings = InsertEmbeddings()
 
     def __process_frame(self, frame):
         """
@@ -33,7 +35,7 @@ class CreateEmbeddings:
         
         return image_features.cpu().numpy().flatten()
     
-    def create_context_embeddings(self, video_path):
+    def create_context_embeddings(self, video_path, context_tags, storage_url):
         
         insert_embeds = InsertEmbeddings()
         cap = cv2.VideoCapture(video_path)
@@ -54,24 +56,34 @@ class CreateEmbeddings:
 
         cap.release()
         
-        insert_embeds.insert_obj_embeddings(self, )
+        self.insert_embeddings.insert_to_pinecone(frame_embeddings, context_tags, storage_url, "context")
         return np.array(frame_embeddings)  # Convert to NumPy array for efficient storage
     
     
-    def create_obj_embeddings(self, object_tags):
+    def create_obj_embeddings(self, object_tags:list, storage_url:str):
         """
         Create text embeddings for the tags using CLIP.
         :return: Dictionary of tags and their corresponding CLIP embeddings.
         """
         print("inside createing embeddings")
-        
-        
-        
+              
         response = client.embeddings.create(
             input = object_tags,
-            model = "text-embedding-3-small",
+            model = "text-embedding-ada-002",
             encoding_format="float"
         )
-            
-        print(response)
+        
+        if response:
+            print(f"successfully created embeddings for {storage_url}")
+        else:
+            print(f"Failed to create embeddings for {storage_url}")
+        
+        embeddings_list = [x for embedding in response.data for x in embedding.embedding]
+        
+        print(type(response.data))
+        print(type(response.data[0]))
+        print(type(response.data[0].embedding))
+        print(response.data[0].embedding[:5])  # Print a few values
+
+        self.insert_embeddings.insert_to_pinecone(embeddings_list, object_tags, storage_url, "obj")
         

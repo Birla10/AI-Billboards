@@ -1,7 +1,6 @@
 from video_processing.videos_to_frames import extract_frames
 from ai_analysis.cloud_vision_frame_processing import FrameAnalyzer
 from ai_analysis.create_embeddings import CreateEmbeddings
-from database.insert_embeddings import InsertEmbeddings
 from database.insert_to_firebase import upload_ad_to_firebase_storage
 from ai_analysis.generate_context_tags import generate_tags
 from pathlib import Path
@@ -19,12 +18,12 @@ class ProcessNewAds:
         Process the uploaded ad file.
         :param file: The uploaded ad file.
         """
-        
+    
         #Save the ad file locally
         file_path = self.__save_file(file)
         
-        # # Upload the video to Firebase
-        # storage_url = upload_ad_to_firebase_storage(file_path, obj_tags)
+        # Upload the video to Firebase
+        storage_url = upload_ad_to_firebase_storage(self, file_path)
         
         #Extract frames from the video
         extract_frames(file_path)
@@ -34,18 +33,13 @@ class ProcessNewAds:
         obj_tags = frame_analyzer.analyze_all_frames(f"resources/frames/{Path(file_path).stem}/")   
         # context_tags = generate_tags(obj_tags)
         
-        print(obj_tags)
-        
         create_embeddings = CreateEmbeddings()
-        # obj_embeddings = create_embeddings.create_obj_embeddings(list(obj_tags))
-        # context_embeddings = create_embeddings.create_context_embeddings(file_path)
-        
-        # insert_embeddings = InsertEmbeddings()
-        # insert_embeddings.insert_to_pinecone(obj_embeddings, obj_tags, context_embeddings, context_tags, storage_url)
-        
-        # #Remove the file after processing
-        # os.remove(file_path)
-        # shutil.rmtree(f"resources/frames/{Path(file_path).stem}/")  
+        obj_embeddings = create_embeddings.create_obj_embeddings(list(obj_tags), storage_url)
+        # context_embeddings = create_embeddings.create_context_embeddings(file_path, context_tags, storage_url)
+                
+        #Remove the file after processing
+        os.remove(file_path)
+        shutil.rmtree(f"resources/frames/{Path(file_path).stem}/")  
     
     def __save_file(self, file):
         """

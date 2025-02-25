@@ -50,6 +50,7 @@ class FrameAnalyzer:
             except Exception as e:
                 print(f"Error processing frames: {e}")
            
+        print("successfully created Object tags")
         # Return the tags for all frames
         return tags
 
