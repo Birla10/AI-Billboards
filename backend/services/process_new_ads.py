@@ -24,6 +24,7 @@ class ProcessNewAds:
         
         # Upload the video to Firebase
         storage_url = upload_ad_to_firebase_storage(self, file_path)
+        #"gs://ai-billboards-63f04.firebasestorage.app/video_ads/Fashion.mp4"
         
         #Extract frames from the video
         extract_frames(file_path)
@@ -31,11 +32,13 @@ class ProcessNewAds:
         # Analyze the frames to extract tags
         frame_analyzer = FrameAnalyzer()
         obj_tags = frame_analyzer.analyze_all_frames(f"resources/frames/{Path(file_path).stem}/")   
-        # context_tags = generate_tags(obj_tags)
+        context_tags = generate_tags(obj_tags)
+        
+        print(context_tags)
         
         create_embeddings = CreateEmbeddings()
-        obj_embeddings = create_embeddings.create_obj_embeddings(list(obj_tags), storage_url)
-        # context_embeddings = create_embeddings.create_context_embeddings(file_path, context_tags, storage_url)
+        create_embeddings.create_obj_embeddings(list(obj_tags), storage_url)
+        create_embeddings.create_context_embeddings(file_path, context_tags, storage_url)
                 
         #Remove the file after processing
         os.remove(file_path)

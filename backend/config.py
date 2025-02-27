@@ -29,4 +29,4 @@ if not firebase_admin._apps:
     
 pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")

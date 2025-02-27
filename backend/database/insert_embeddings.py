@@ -37,7 +37,7 @@ class InsertEmbeddings:
         
         pinecone.create_index(
             name=index_name,
-            dimension=1536,
+            dimension=512,
             metric="cosine",
             spec=ServerlessSpec(
                 cloud="aws",

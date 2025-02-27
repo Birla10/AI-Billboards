@@ -56,7 +56,17 @@ class CreateEmbeddings:
 
         cap.release()
         
-        self.insert_embeddings.insert_to_pinecone(frame_embeddings, context_tags, storage_url, "context")
+        if not frame_embeddings:
+            print("No valid embeddings extracted!")
+            return None
+        
+        final_embedding = np.mean(frame_embeddings, axis=0).tolist()
+        
+        #final_embedding = [float(x) for x in final_embedding]
+        print(type(final_embedding))
+        # Verify the final embedding has the correct shape
+        print(f"Final embedding shape: {len(final_embedding)}")
+        self.insert_embeddings.insert_to_pinecone(final_embedding, context_tags, storage_url, "context")
         return np.array(frame_embeddings)  # Convert to NumPy array for efficient storage
     
     
@@ -78,12 +88,15 @@ class CreateEmbeddings:
         else:
             print(f"Failed to create embeddings for {storage_url}")
         
-        embeddings_list = [x for embedding in response.data for x in embedding.embedding]
-        
-        print(type(response.data))
-        print(type(response.data[0]))
-        print(type(response.data[0].embedding))
-        print(response.data[0].embedding[:5])  # Print a few values
+        embeddings_list = [embedding.embedding for embedding in response.data]  # List of embeddings
 
-        self.insert_embeddings.insert_to_pinecone(embeddings_list, object_tags, storage_url, "obj")
+        # If multiple tags exist, take the average embedding
+        final_embedding = np.mean(embeddings_list, axis=0).tolist()  # Ensures 1536-dimension
+
+        #final_embedding = [float(x) for x in final_embedding]
+        print(type(final_embedding))
+        # Verify the final embedding has the correct shape
+        print(f"Final embedding shape: {len(final_embedding)}")
+
+        self.insert_embeddings.insert_to_pinecone(final_embedding, object_tags, storage_url, "obj")
         
