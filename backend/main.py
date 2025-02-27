@@ -12,7 +12,7 @@ async def read_endpoint():
     print("Endpoint called")
     weather = WeatherService()
     current_time = TimeClassifier()
-    return weather.get_weather(), current_time.get_time_period()
+    return weather.get_weather(), current_time.get_month(), current_time.get_time_period()
     #return weather
     #current_time.get_time_period()
 
