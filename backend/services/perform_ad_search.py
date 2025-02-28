@@ -1,12 +1,8 @@
-from pinecone import ServerlessSpec
-from config import pinecone
-import os
-from pathlib import Path
-from dotenv import load_dotenv
 from data_fetching.weather import WeatherService
 from data_fetching.currentTime import TimeClassifier
 from ai_analysis.emotion_detection import get_emotion
 from ai_analysis.create_embeddings import CreateEmbeddings
+from database.pinecone_similarity_search import SimilaritySearch
 
 class AdSearch:
     
@@ -21,13 +17,16 @@ class AdSearch:
         weather = WeatherService()
         current_time = TimeClassifier()
         
+        # Get search query
         query = get_emotion() + " " + "person in "  + weather.get_weather() + " " + current_time.get_month() + " " + current_time.get_time_period()
 
         print(query)
         
+        # Create embeddings for the query
         create_embeddings = CreateEmbeddings()
         query_embeddings = create_embeddings.create_obj_embeddings(query)
         
-        print(f"Final embedding shape: {len(query_embeddings)}")
+        similaritySearch = SimilaritySearch()
         
-        return query_embeddings
+        # Perform similarity search
+        return similaritySearch.perform_similarity_search(query_embeddings)
