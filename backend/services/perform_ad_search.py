@@ -21,7 +21,7 @@ class AdSearch:
         weather = WeatherService()
         current_time = TimeClassifier()
         
-        query = "happy " + "person in "  + weather.get_weather() + " " + current_time.get_month() + " " + current_time.get_time_period()
+        query = get_emotion() + " " + "person in "  + weather.get_weather() + " " + current_time.get_month() + " " + current_time.get_time_period()
 
         print(query)
         
