@@ -31,5 +31,4 @@ pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 
 api_key = os.getenv('OPENAI_API_KEY')
 
-print(type(api_key))
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))

@@ -1,27 +1,26 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 import uvicorn
-from data_fetching.weather import WeatherService
-from data_fetching.currentTime import TimeClassifier
-from services import process_new_ads
+from services.perform_ad_search import AdSearch
+from services.process_new_ads import ProcessNewAds
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
 
 @app.get("/endpoint")
 async def read_endpoint():
-    print("Endpoint called")
-    weather = WeatherService()
-    current_time = TimeClassifier()
-    return weather.get_weather(), current_time.get_month(), current_time.get_time_period()
-    #return weather
-    #current_time.get_time_period()
+    adSearch = AdSearch()
+    try:
+        embeds = adSearch.getAccurateAd()
+        return JSONResponse(embeds, status_code=200)
+    except Exception as e:
+        return JSONResponse(content={"message": f"Failed: {str(e)}"}, status_code=500)
 
 @app.post("/video/")
 async def upload_video(file: UploadFile = File(...)):
     """
     Endpoint to upload a video file.
     """
-    add_ads = process_new_ads.ProcessNewAds()
+    add_ads = ProcessNewAds()
     try:
         add_ads.process_ad(file)
         return JSONResponse(content={"message": "Video uploaded successfully!"})

@@ -36,9 +36,3 @@ class WeatherService:
             return g.city
         else:
             return "City not found"
-        
-
-# Example usage:
-# weather_service = WeatherService()
-# weather_data = weather_service.get_weather('London')
-# print(weather_data)

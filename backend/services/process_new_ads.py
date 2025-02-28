@@ -3,6 +3,7 @@ from ai_analysis.cloud_vision_frame_processing import FrameAnalyzer
 from ai_analysis.create_embeddings import CreateEmbeddings
 from database.insert_to_firebase import upload_ad_to_firebase_storage
 from ai_analysis.generate_context_tags import generate_tags
+from database.insert_embeddings import InsertEmbeddings 
 from pathlib import Path
 import numpy as np
 import os
@@ -32,14 +33,21 @@ class ProcessNewAds:
         # Analyze the frames to extract tags
         frame_analyzer = FrameAnalyzer()
         obj_tags = frame_analyzer.analyze_all_frames(f"resources/frames/{Path(file_path).stem}/")   
+        
+        #Generate context tags based on obj_tags
         context_tags = generate_tags(obj_tags)
         
-        print(context_tags)
-        
         create_embeddings = CreateEmbeddings()
-        create_embeddings.create_obj_embeddings(list(obj_tags), storage_url)
-        create_embeddings.create_context_embeddings(file_path, context_tags, storage_url)
-                
+        insert_embeddings = InsertEmbeddings()
+        
+        #Create and insert object context embeddings
+        obj_embeddings = create_embeddings.create_obj_embeddings(list(obj_tags))
+        insert_embeddings.insert_to_pinecone(obj_embeddings, list(obj_tags), storage_url, "obj")
+        
+        #Create and insert context embeddings
+        context_embeddings = create_embeddings.create_context_embeddings(file_path)
+        insert_embeddings.insert_to_pinecone(context_embeddings, context_tags, storage_url, "context")       
+        
         #Remove the file after processing
         os.remove(file_path)
         shutil.rmtree(f"resources/frames/{Path(file_path).stem}/")  

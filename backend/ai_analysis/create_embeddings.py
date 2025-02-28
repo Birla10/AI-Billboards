@@ -3,7 +3,6 @@ import torch
 import clip
 from PIL import Image
 import numpy as np
-from database.insert_embeddings import InsertEmbeddings 
 from config import client
 
 class CreateEmbeddings:
@@ -18,7 +17,6 @@ class CreateEmbeddings:
         self.device = device
         self.model, self.preprocess = clip.load(model_name, device=self.device)
         self.frame_skip = frame_skip  # Process every nth frame
-        self.insert_embeddings = InsertEmbeddings()
 
     def __process_frame(self, frame):
         """
@@ -35,9 +33,8 @@ class CreateEmbeddings:
         
         return image_features.cpu().numpy().flatten()
     
-    def create_context_embeddings(self, video_path, context_tags, storage_url):
-        
-        insert_embeds = InsertEmbeddings()
+    def create_context_embeddings(self, video_path):
+
         cap = cv2.VideoCapture(video_path)
         frame_embeddings = []
         frame_count = 0
@@ -60,17 +57,9 @@ class CreateEmbeddings:
             print("No valid embeddings extracted!")
             return None
         
-        final_embedding = np.mean(frame_embeddings, axis=0).tolist()
-        
-        #final_embedding = [float(x) for x in final_embedding]
-        print(type(final_embedding))
-        # Verify the final embedding has the correct shape
-        print(f"Final embedding shape: {len(final_embedding)}")
-        self.insert_embeddings.insert_to_pinecone(final_embedding, context_tags, storage_url, "context")
-        return np.array(frame_embeddings)  # Convert to NumPy array for efficient storage
+        return np.mean(frame_embeddings, axis=0).tolist()    
     
-    
-    def create_obj_embeddings(self, object_tags:list, storage_url:str):
+    def create_obj_embeddings(self, object_tags):
         """
         Create text embeddings for the tags using CLIP.
         :return: Dictionary of tags and their corresponding CLIP embeddings.
@@ -84,19 +73,15 @@ class CreateEmbeddings:
         )
         
         if response:
-            print(f"successfully created embeddings for {storage_url}")
+            print(f"successfully created embeddings")
         else:
-            print(f"Failed to create embeddings for {storage_url}")
+            print(f"Failed to create embeddings")
         
         embeddings_list = [embedding.embedding for embedding in response.data]  # List of embeddings
 
         # If multiple tags exist, take the average embedding
-        final_embedding = np.mean(embeddings_list, axis=0).tolist()  # Ensures 1536-dimension
+        return np.mean(embeddings_list, axis=0).tolist()  # Ensures 1536-dimension
 
-        #final_embedding = [float(x) for x in final_embedding]
-        print(type(final_embedding))
-        # Verify the final embedding has the correct shape
-        print(f"Final embedding shape: {len(final_embedding)}")
 
-        self.insert_embeddings.insert_to_pinecone(final_embedding, object_tags, storage_url, "obj")
+        
         
