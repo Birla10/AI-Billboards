@@ -8,3 +8,4 @@ python-multipart
 torch
 geocoder
 pinecone[grpc]
+scikit-learn
