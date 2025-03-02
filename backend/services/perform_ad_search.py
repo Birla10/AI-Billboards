@@ -37,11 +37,11 @@ class AdSearch:
         similaritySearch = SimilaritySearch()
         
         # Perform similarity search
-        #return similaritySearch.perform_similarity_search(query_embeddings)
+        return similaritySearch.perform_similarity_search(query_embeddings, )
     
     def __reduced_dimension(self, embeddings):
         
         embeddings_array = np.array(embeddings)
-        
+                
         pca = PCA(n_components=512)
         return pca.fit_transform(embeddings_array.reshape(1, -1))

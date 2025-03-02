@@ -1,5 +1,9 @@
 import os
 from dotenv import load_dotenv
+
+from openai import OpenAIError
+from exceptions.tags_generation_failed_exception import TagsGenerationFailedException
+
 from config import client
 
 load_dotenv()
@@ -21,6 +25,10 @@ def generate_tags(tags: set):
         )
         if response.choices and response.choices[0].message:
             return response.choices[0].message.content
-        
+    
+    except (KeyError, IndexError, AttributeError) as e:
+        raise TagsGenerationFailedException("Invalid response received", errors=str(e))
+    except (OpenAIError, ConnectionError, TimeoutError, ValueError) as e:
+        raise TagsGenerationFailedException("Failed to generate tags", errors=str(e))
     except Exception as e:
-        print(f"Error: {e}")
+        raise TagsGenerationFailedException("An unexpected error occurred", errors=str(e))
