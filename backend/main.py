@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 import uvicorn
 from services.perform_ad_search import AdSearch
 from services.process_new_ads import ProcessNewAds
+from exceptions.video_processing_failed_exception import VideoProcessingFailedException
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
 
@@ -24,7 +25,7 @@ async def upload_video(file: UploadFile = File(...)):
     try:
         add_ads.process_ad(file)
         return JSONResponse(content={"message": "Video uploaded successfully!"})
-    except Exception as e:
+    except VideoProcessingFailedException as e:
         return JSONResponse(content={"message": f"Video upload failed: {str(e)}"}, status_code=500)
 
 if __name__ == "__main__":
