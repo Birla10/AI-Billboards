@@ -16,7 +16,6 @@ class WeatherService:
     def get_weather(self):
         """Fetches weather data for a given city."""
         
-        print("Fetching weather data...")
         params = {
             'q': self.__get_city(),
             'appid': self.api_key,
@@ -32,7 +31,6 @@ class WeatherService:
     def __get_city(self): 
         g = geocoder.ip('me')
         if g.ok:
-            print(f"City: {g.city}")
             return g.city
         else:
             return "City not found"
