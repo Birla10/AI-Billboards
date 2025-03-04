@@ -77,16 +77,14 @@ class CreateEmbeddings:
             
     
     def create_obj_embeddings(self, object_tags):
-        """
-        Create text embeddings for the tags using CLIP.
-        :return: Dictionary of tags and their corresponding CLIP embeddings.
-        """
+        
         try:
             print("inside createing embeddings")
               
             response = client.embeddings.create(
                 input = object_tags,
-                model = "text-embedding-ada-002",
+                dimensions=512,
+                model = "text-embedding-3-small",
                 encoding_format="float"
             )
         
@@ -101,11 +99,11 @@ class CreateEmbeddings:
             return np.mean(embeddings_list, axis=0).tolist()  # Ensures 1536-dimension
 
         except (KeyError, IndexError, AttributeError) as e:
-            raise EmbeddingsGenerationFailedException("Invalid response received", errors=str(e))
+            raise EmbeddingsGenerationFailedException("Invalid response received", str(e))
         except (OpenAIError, ConnectionError, TimeoutError, ValueError) as e:
-            raise EmbeddingsGenerationFailedException("Failed to generate embeddings", errors=str(e))
+            raise EmbeddingsGenerationFailedException("Failed to generate embeddings", str(e))
         except Exception as e:
-            raise EmbeddingsGenerationFailedException("An unexpected error occurred", errors=str(e))
+            raise EmbeddingsGenerationFailedException("An unexpected error occurred", str(e))
             
 
         

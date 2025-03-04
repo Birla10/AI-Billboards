@@ -18,7 +18,14 @@ class SimilaritySearch:
     def perform_similarity_search(self, query):
         
         # Perform similarity search in the context index
-        return self.__search_context_index(self.object_index_name, query)
+        context_ids = self.__search_context_index(self.context_index_name, query)
+
+        #obj_ids = self.__search_object_index(self.object_index_name, query)
+        
+        print("___________________________________")
+        print(context_ids)
+        
+        #print(obj_ids)
         
     def __search_context_index(self, index_name, query):
         
@@ -34,6 +41,30 @@ class SimilaritySearch:
             include_metadata=True
         )
         
+        context_index_ids = {}
         # Print the results        
         for match in query_results.matches:
-            print(f"ID: {match.id}, Score: {match.score}, Metadata: {match.metadata}")
+            context_index_ids[match.id] = match.metadata.get("video_url")
+            
+        return context_index_ids
+    
+    def __search_object_index(self, index_name, query):
+        
+        print(f"searching index {index_name}")
+        
+        # Connect to the index
+        index = pinecone.Index(index_name)
+        
+        # Perform the query
+        query_results = index.query(
+            vector=query,
+            top_k=3,
+            include_metadata=True
+        )
+        
+        obj_index_ids = {}
+        # Print the results        
+        for match in query_results.matches:
+            obj_index_ids[match.id] = match.metadata.get("video_url")
+            
+        return obj_index_ids
