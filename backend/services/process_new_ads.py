@@ -2,7 +2,7 @@ import os
 import shutil
 from pathlib import Path
 
-import numpy as np
+from fastapi import UploadFile
 
 from video_processing.videos_to_frames import extract_frames
 from ai_analysis.cloud_vision_frame_processing import FrameAnalyzer
@@ -24,7 +24,7 @@ class ProcessNewAds:
     Class to process new ads.
     """
     
-    def process_ad(self, file):
+    def process_ad(self, file:UploadFile, userTags:set):
         """ 
         Processes the uploaded ad file.
     
@@ -58,6 +58,7 @@ class ProcessNewAds:
             frame_analyzer = FrameAnalyzer()
             obj_tags = frame_analyzer.analyze_all_frames(f"resources/frames/{Path(file_path).stem}/")   
         
+            obj_tags = obj_tags.union(userTags)
             #Generate context tags based on obj_tags
             context_tags = generate_tags(obj_tags)
         

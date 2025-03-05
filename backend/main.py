@@ -17,13 +17,13 @@ async def read_endpoint():
         raise HTTPException(status_code=500, detail=f"Ad fetching failed: {str(e)}")
 
 @app.post("/video/")
-async def upload_video(file: UploadFile = File(...)):
+async def upload_video(file: UploadFile = File(...), tags: set = {}):
     """
     Endpoint to upload a video file.
     """
     add_ads = ProcessNewAds()
     try:
-        add_ads.process_ad(file)
+        add_ads.process_ad(file, tags)
         return JSONResponse(content={"message": "Video uploaded successfully!"})
     except VideoProcessingFailedException as e:
         raise HTTPException(status_code=500, detail=f"Video upload failed: {str(e)}")
