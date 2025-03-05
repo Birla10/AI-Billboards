@@ -1,0 +1,18 @@
+.navbar {
+  background-color: #311C67; /* changed background color */
+  color: #FAC93C;
+  padding: 25px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar .logo {
+  font-size: 1.5em;
+}
+
+/* Added styling for nav-items container if needed */
+.navbar .nav-items {
+  display: flex;
+  gap: 20px;
+}
