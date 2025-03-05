@@ -4,8 +4,18 @@ import uvicorn
 from services.perform_ad_search import AdSearch
 from services.process_new_ads import ProcessNewAds
 from exceptions.video_processing_failed_exception import VideoProcessingFailedException
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
+
+# Allow all origins (Not recommended for production)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 
 @app.get("/endpoint")
 async def read_endpoint():

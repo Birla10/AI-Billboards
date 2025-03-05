@@ -10,18 +10,20 @@ const UploadForm = () => {
     e.preventDefault();
     // Process the form data and call backend API
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
+    console.log("Backend URL:", backendUrl);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('keywords', keywords);
 
     try {
-      const response = await fetch(`${backendUrl}/upload`, {
+      const response = await fetch(`${backendUrl}`, {
         method: 'POST',
         body: formData,
       });
       // Handle the response as needed
       const result = await response.json();
       console.log("API response:", result);
+
     } catch (error) {
       console.error("Error during API call", error);
     }
