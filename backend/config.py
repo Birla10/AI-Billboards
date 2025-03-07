@@ -5,7 +5,6 @@ from firebase_admin import credentials, storage, firestore
 from pinecone import Pinecone
 from openai import OpenAI
 import asyncio
-import json
 from services.websocket_service import start_server
 
 load_dotenv()
@@ -21,18 +20,10 @@ else:
 
 # Initialize Firebase App only once
 if not firebase_admin._apps:
-    
-    # Load JSON credentials from environment variable
-    firebase_credentials = os.getenv('FIREBASE_CREDENTIALS')
-    
-    if firebase_credentials:
-        cred_dict = json.loads(firebase_credentials)  # Convert JSON string to dictionary
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred, {
-            'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET') 
-        })
-    else:
-        raise ValueError("FIREBASE_CREDENTIALS environment variable is not set.")
+    cred = credentials.Certificate(os.getenv('FIREBASE_CREDENTIALS'))
+    firebase_admin.initialize_app(cred, {
+        'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET') 
+    })
         
     # Get storage bucket reference
     firebase_bucket = storage.bucket()
