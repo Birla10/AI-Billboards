@@ -1,10 +1,11 @@
+import numpy as np
+
 from data_fetching.weather import WeatherService
 from data_fetching.currentTime import TimeClassifier
 from ai_analysis.emotion_detection import get_emotion
 from ai_analysis.create_embeddings import CreateEmbeddings
 from database.pinecone_similarity_search import SimilaritySearch
-from sklearn.decomposition import PCA
-import numpy as np
+from database.fetch_ads import FirebaseVideoFetcher
 
 class AdSearch:
     
@@ -16,20 +17,28 @@ class AdSearch:
         """
         This function is used to get the accurate ad from the pinecone database
         """
-        weather = WeatherService()
-        current_time = TimeClassifier()
         
-        # Get search query
-        query = "happy" + " " + "person in "  + weather.get_weather() + " " + current_time.get_month() + " " + current_time.get_time_period()
+        videoFetcher =FirebaseVideoFetcher()
+        
+        for emotion in get_emotion():
+            if emotion:
+                weather = WeatherService()
+                current_time = TimeClassifier()
+        
+                # Get search query
+                query = emotion + " " + "person in "  + weather.get_weather() + " " + current_time.get_month() + " " + current_time.get_time_period()
 
-        print(query)
+                print(query)
         
-        # Create embeddings for the query
-        create_embeddings = CreateEmbeddings()
-        query_embeddings = create_embeddings.create_obj_embeddings(query)
+                # Create embeddings for the query
+                create_embeddings = CreateEmbeddings()
+                query_embeddings = create_embeddings.create_obj_embeddings(query)
 
-        similaritySearch = SimilaritySearch()
+                similaritySearch = SimilaritySearch()
         
-        # Perform similarity search
-        return similaritySearch.perform_similarity_search(query_embeddings )
+                # Perform similarity search
+                ads =  similaritySearch.perform_similarity_search(query_embeddings)
+                
+                videoFetcher.fetch_videos(ads)
+                
     

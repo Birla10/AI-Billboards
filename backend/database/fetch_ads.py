@@ -7,7 +7,7 @@ class FirebaseVideoFetcher:
     def __init__(self):
         self.bucket = firebase_bucket
 
-    def fetch_videos(self):
+    def fetch_videos(self, ads):
         """
         Fetches all video URLs from Firebase Storage.
         Returns a list of signed URLs valid for 1 hour.

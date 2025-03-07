@@ -4,6 +4,8 @@ import firebase_admin
 from firebase_admin import credentials, storage, firestore
 from pinecone import Pinecone
 from openai import OpenAI
+import asyncio
+from services.websocket_service import start_server
 
 load_dotenv()
 # Get the JSON key path
@@ -32,3 +34,8 @@ pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 api_key = os.getenv('OPENAI_API_KEY')
 
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = '0'
+
+loop = asyncio.get_event_loop()
+loop.create_task(start_server())

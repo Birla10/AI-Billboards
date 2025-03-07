@@ -20,12 +20,19 @@ class SimilaritySearch:
         # Perform similarity search in the context index
         context_ids = self.__search_context_index(self.context_index_name, query)
 
-        #obj_ids = self.__search_object_index(self.object_index_name, query)
+        obj_ids = self.__search_object_index(self.object_index_name, query)
         
-        print("___________________________________")
-        print(context_ids)
+        common_ids = set()
         
-        #print(obj_ids)
+        for obj_id in obj_ids:
+            obj_id_prefix = obj_id.split('_')[0]
+            for context_id in context_ids:
+                context_id_prefix = context_id.split('_')[0]
+                if obj_id_prefix == context_id_prefix:
+                    common_ids.add(obj_id_prefix)
+        
+        return common_ids
+                 
         
     def __search_context_index(self, index_name, query):
         
