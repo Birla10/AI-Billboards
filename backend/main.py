@@ -1,8 +1,10 @@
 import uvicorn
+import asyncio
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from services.websocket_service import start_server
 from database.fetch_ads import FirebaseVideoFetcher
 from services.perform_ad_search import AdSearch
 from services.process_new_ads import ProcessNewAds
@@ -41,5 +43,19 @@ async def upload_video(file: UploadFile = File(...), keywords : list[str] = Form
     except VideoProcessingFailedException as e:
         raise HTTPException(status_code=500, detail=f"Video upload failed: {str(e)}")
 
+async def main():
+    """
+    Run FastAPI and WebSocket server concurrently in the same event loop.
+    """
+    loop = asyncio.get_event_loop()
+    
+    # Start the WebSocket server as a background task
+    loop.create_task(start_server())
+
+    # Run FastAPI (Uvicorn)
+    config = uvicorn.Config(app)
+    server = uvicorn.Server(config)
+    await server.serve()
+
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    asyncio.run(main()) 
