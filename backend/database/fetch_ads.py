@@ -1,27 +1,37 @@
-from config import firebase_bucket
+import asyncio
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
 
+import firebase_admin
+from firebase_admin import credentials, storage
+
+from services import websocket_service
+
 class FirebaseVideoFetcher:
     def __init__(self):
-        self.bucket = firebase_bucket
+        
+        load_dotenv()
+        if not firebase_admin._apps:
+            cred = credentials.Certificate(os.getenv('FIREBASE_CREDENTIALS'))
+            firebase_admin.initialize_app(cred, {
+                'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET') 
+        })
+        
+        # Get storage bucket reference
+        self.bucket = storage.bucket()
 
-    def fetch_videos(self):
+    async def fetch_videos(self, ads):
         """
         Fetches all video URLs from Firebase Storage.
         Returns a list of signed URLs valid for 1 hour.
         """
-        blobs = self.bucket.list_blobs(prefix='videos/')  
         
-        video_urls = []
-        for blob in blobs:
-            # Generate signed URL valid for 1 hour
-            signed_url = blob.generate_signed_url(
-                expiration=timedelta(hours=1), 
-                method="GET"
-            )
-            video_urls.append(signed_url)
+        file_name = f"video_ads/{ads[0]}.mp4"
+        blob = self.bucket.blob(file_name)
+        
+        signed_url = blob.generate_signed_url(expiration=timedelta(hours=1), method='GET')
 
-        return video_urls
+        asyncio.create_task(websocket_service.send_message(signed_url))
+        
 

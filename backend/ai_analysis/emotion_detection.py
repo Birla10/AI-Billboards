@@ -10,8 +10,10 @@ def get_emotion():
 
     # Start capturing video
     cap = cv2.VideoCapture(0)
-
-    while True:
+    
+    run = True;
+    
+    while run:
         # Capture frame-by-frame
         ret, frame = cap.read()
         if not ret:
@@ -52,12 +54,14 @@ def get_emotion():
         yield detected_emotion
 
         # Wait for 20 seconds before detecting again
-        print("Waiting 20 seconds before next detection...")
-        time.sleep(20)
+        print("Waiting 5 seconds before next detection...")
+        time.sleep(5)
 
         # Press 'q' to exit
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        
+        run = False
 
     # Release the capture and close all windows
     cap.release()

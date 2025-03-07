@@ -1,8 +1,7 @@
-from pinecone import ServerlessSpec
-from config import pinecone
 import os
-from pathlib import Path
 from dotenv import load_dotenv
+
+from pinecone import Pinecone
 
 class SimilaritySearch:
     
@@ -14,6 +13,8 @@ class SimilaritySearch:
       
         self.context_embeddings_host = os.getenv("PINECONE_CONTEXT_EMBEDDINGS_INDEX_HOST") 
         self.object_embeddings_host = os.getenv("PINECONE_OBJECT_EMBEDDINGS_INDEX_HOST")  
+        
+        self.pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
       
     def perform_similarity_search(self, query):
         
@@ -39,7 +40,7 @@ class SimilaritySearch:
         print(f"searching index {index_name}")
         
         # Connect to the index
-        index = pinecone.Index(index_name)
+        index = self.pinecone.Index(index_name)
         
         # Perform the query
         query_results = index.query(
@@ -60,7 +61,7 @@ class SimilaritySearch:
         print(f"searching index {index_name}")
         
         # Connect to the index
-        index = pinecone.Index(index_name)
+        index = self.pinecone.Index(index_name)
         
         # Perform the query
         query_results = index.query(

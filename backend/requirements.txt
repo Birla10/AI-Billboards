@@ -5,7 +5,6 @@ docutils
 fastapi
 filelock
 firebase_admin
-gensim
 geocoder
 ipython
 keyring

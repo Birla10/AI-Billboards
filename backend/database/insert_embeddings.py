@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from pinecone import ServerlessSpec
-from config import pinecone
+from pinecone import Pinecone
 from openai import OpenAIError
 
 from exceptions.pinecone_insertion_failure_exception import PineconeInsertionFailureException
@@ -16,8 +16,10 @@ class InsertEmbeddings:
       self.object_index_name = os.getenv("PINECONE_OBJECT_INDEX")
       self.context_index_name = os.getenv("PINECONE_CONTEXT_INDEX")
       
-      self.object_index_exists = pinecone.has_index(self.object_index_name)
-      self.context_index_exists = pinecone.has_index(self.context_index_name)
+      self.pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
+      
+      self.object_index_exists = self.pinecone.has_index(self.object_index_name)
+      self.context_index_exists = self.pinecone.has_index(self.context_index_name)
       
       if not self.object_index_exists:
           print(self.object_index_name)
@@ -39,7 +41,7 @@ class InsertEmbeddings:
         try:
             print(f"creating index {index_name}")
         
-            pinecone.create_index(
+            self.pinecone.create_index(
                 name=index_name,
                 dimension=512,
                 metric="cosine",
@@ -53,7 +55,7 @@ class InsertEmbeddings:
                 }
             )
 
-            index_desc = pinecone.describe_index(index_name)
+            index_desc = self.pinecone.describe_index(index_name)
             os.environ["PINECONE_OBJECT_EMBEDDINGS_INDEX_HOST"] = index_desc.host
             print("Pinecone index created successfully.") 
         
@@ -77,7 +79,7 @@ class InsertEmbeddings:
                 index_id = Path(storage_url).stem + "_context"
                 host_id = self.context_embeddings_host
             
-            index = pinecone.Index(host=host_id)
+            index = self.pinecone.Index(host=host_id)
             upsert_response = index.upsert(
                 vectors=[
                     {

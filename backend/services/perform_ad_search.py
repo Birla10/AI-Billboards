@@ -39,6 +39,8 @@ class AdSearch:
                 # Perform similarity search
                 ads =  similaritySearch.perform_similarity_search(query_embeddings)
                 
-                videoFetcher.fetch_videos(ads)
+                print(ads)
+                
+                videoFetcher.fetch_videos(list(ads))
                 
     

@@ -1,11 +1,14 @@
+import os
+from dotenv import load_dotenv
+
 import cv2
 import torch
 import clip
-from PIL import Image
 import numpy as np
+from PIL import Image
+from openai import OpenAI
 from openai import OpenAIError
 
-from config import client
 from exceptions.embeddings_generation_failed_exception import EmbeddingsGenerationFailedException
 
 class CreateEmbeddings:
@@ -17,6 +20,10 @@ class CreateEmbeddings:
         :param device: 'cuda' if GPU is available, else 'cpu'
         :param frame_skip: Number of frames to skip (higher = fewer frames)
         """
+        
+        load_dotenv()
+        self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        
         self.device = device
         self.model, self.preprocess = clip.load(model_name, device=self.device)
         self.frame_skip = frame_skip  # Process every nth frame
@@ -81,7 +88,7 @@ class CreateEmbeddings:
         try:
             print("inside createing embeddings")
               
-            response = client.embeddings.create(
+            response = self.client.embeddings.create(
                 input = object_tags,
                 dimensions=512,
                 model = "text-embedding-3-small",

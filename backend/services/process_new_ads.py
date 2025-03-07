@@ -7,8 +7,8 @@ from fastapi import UploadFile
 from video_processing.videos_to_frames import extract_frames
 from ai_analysis.cloud_vision_frame_processing import FrameAnalyzer
 from ai_analysis.create_embeddings import CreateEmbeddings
-from ai_analysis.generate_context_tags import generate_tags
-from database.insert_to_firebase import upload_ad_to_firebase_storage
+from ai_analysis.generate_context_tags import TagGenerator
+from database.insert_to_firebase import FirebaseUploader
 from database.insert_embeddings import InsertEmbeddings 
 
 from exceptions.file_save_error_exception import FileSaveErrorException
@@ -48,9 +48,9 @@ class ProcessNewAds:
                 raise VideoProcessingFailedException("Unsupported file format. Please upload a video file.") from None
         
             # Upload the video to Firebase
-            storage_url = upload_ad_to_firebase_storage(self, file_path)
-            #"gs://ai-billboards-63f04.firebasestorage.app/video_ads/Fashion.mp4"
-        
+            firebase_uploader = FirebaseUploader()
+            storage_url = firebase_uploader.upload_ad_to_firebase_storage(file_path)
+           
             #Extract frames from the video
             extract_frames(file_path)
         
@@ -64,7 +64,8 @@ class ProcessNewAds:
             print(obj_tags)
             
             #Generate context tags based on obj_tags
-            context_tags = generate_tags(obj_tags)
+            tag_generator = TagGenerator()
+            context_tags = tag_generator.generate_tags(obj_tags)
         
             create_embeddings = CreateEmbeddings()
             insert_embeddings = InsertEmbeddings()
