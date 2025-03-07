@@ -11,8 +11,8 @@ ipython
 keyring
 numpy
 openai
-opencv_python
-pinecone
+opencv-python
+pinecone[grpc]
 protobuf
 pydantic
 pyOpenSSL
@@ -20,4 +20,6 @@ python-dotenv
 torch
 uvicorn
 websockets
+python-multipart
 tf-keras
+google-cloud-vision
