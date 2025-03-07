@@ -20,4 +20,4 @@ python-dotenv
 torch
 uvicorn
 websockets
-
+tf-keras
