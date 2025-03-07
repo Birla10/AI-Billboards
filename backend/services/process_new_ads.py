@@ -24,7 +24,7 @@ class ProcessNewAds:
     Class to process new ads.
     """
     
-    def process_ad(self, file:UploadFile, userTags:set):
+    def process_ad(self, file:UploadFile, userTags:set = {}):
         """ 
         Processes the uploaded ad file.
     
@@ -58,7 +58,11 @@ class ProcessNewAds:
             frame_analyzer = FrameAnalyzer()
             obj_tags = frame_analyzer.analyze_all_frames(f"resources/frames/{Path(file_path).stem}/")   
         
+            print(userTags)
             obj_tags = obj_tags.union(userTags)
+            
+            print(obj_tags)
+            
             #Generate context tags based on obj_tags
             context_tags = generate_tags(obj_tags)
         

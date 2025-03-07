@@ -1,10 +1,12 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
 import uvicorn
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+
+from database.fetch_ads import FirebaseVideoFetcher
 from services.perform_ad_search import AdSearch
 from services.process_new_ads import ProcessNewAds
 from exceptions.video_processing_failed_exception import VideoProcessingFailedException
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
 
@@ -20,19 +22,21 @@ app.add_middleware(
 async def read_endpoint():
     adSearch = AdSearch()
     try:
+        video_fetcher = FirebaseVideoFetcher()
+        urls = video_fetcher.fetch_videos()
         embeds = adSearch.getAccurateAd()
-        return JSONResponse(embeds, status_code=200)
+        return JSONResponse(urls, status_code=200)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ad fetching failed: {str(e)}")
 
 @app.post("/video/")
-async def upload_video(file: UploadFile = File(...), tags: set = {}):
+async def upload_video(file: UploadFile = File(...), keywords : list[str] = Form(...)):
     """
     Endpoint to upload a video file.
     """
     add_ads = ProcessNewAds()
     try:
-        add_ads.process_ad(file, tags)
+        add_ads.process_ad(file, keywords)
         return JSONResponse(content={"message": "Video uploaded successfully!"})
     except VideoProcessingFailedException as e:
         raise HTTPException(status_code=500, detail=f"Video upload failed: {str(e)}")
