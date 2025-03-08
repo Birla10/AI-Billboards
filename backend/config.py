@@ -1,4 +1,6 @@
 import os
+import tensorflow as tf
+import warnings
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,3 +14,7 @@ else:
     raise Exception("GOOGLE_APPLICATION_CREDENTIALS is not set in the .env file!")
     
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = '0'
+
+tf.get_logger().setLevel('ERROR')
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)

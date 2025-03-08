@@ -1,3 +1,4 @@
+import asyncio
 import numpy as np
 
 from data_fetching.weather import WeatherService
@@ -12,7 +13,7 @@ class AdSearch:
     """
     This class is used to search for ads in the pinecone database
     """
-    def getAccurateAd(self):
+    async def getAccurateAd(self):
         
         """
         This function is used to get the accurate ad from the pinecone database
@@ -39,8 +40,6 @@ class AdSearch:
                 # Perform similarity search
                 ads =  similaritySearch.perform_similarity_search(query_embeddings)
                 
-                print(ads)
-                
-                videoFetcher.fetch_videos(list(ads))
+                await videoFetcher.fetch_videos(list(ads))
                 
     

@@ -1,25 +1,16 @@
 import uvicorn
 import asyncio
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException, WebSocket, WebSocketDisconnect
 
-from services.websocket_service import start_server
-from database.fetch_ads import FirebaseVideoFetcher
 from services.perform_ad_search import AdSearch
 from services.process_new_ads import ProcessNewAds
+from services.websocket_service import websocket_manager
 from exceptions.video_processing_failed_exception import VideoProcessingFailedException
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Start WebSocket server when FastAPI starts."""
-    loop = asyncio.get_event_loop()
-    loop.create_task(start_server())  # Start WebSocket server in background
-    yield  # Run FastAPI after WebSocket is started
-
 # Create FastAPI app
-app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False}, lifespan=lifespan)
+app = FastAPI(swagger_ui_parameters={"syntaxHighlight": False})
 
 # Enable CORS
 app.add_middleware(
@@ -34,8 +25,8 @@ app.add_middleware(
 async def read_endpoint():
     adSearch = AdSearch()
     try:
-        embeds = adSearch.getAccurateAd()
-        return JSONResponse(embeds, status_code=200)
+        await adSearch.getAccurateAd()
+        return JSONResponse("success", status_code=200)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ad fetching failed: {str(e)}")
 
@@ -50,7 +41,20 @@ async def upload_video(file: UploadFile = File(...), keywords: list[str] = Form(
         return JSONResponse(content={"message": "Video uploaded successfully!"})
     except VideoProcessingFailedException as e:
         raise HTTPException(status_code=500, detail=f"Video upload failed: {str(e)}")
+    
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket_manager.connect(websocket)
+    print("Client connected")
 
-# Run FastAPI using Uvicorn (without asyncio.run)
+    try:
+        while True:
+            await asyncio.sleep(1)  # Keep connection open (do nothing)
+    except WebSocketDisconnect:
+        websocket_manager.disconnect(websocket)
+        print("Client disconnected")
+
 if __name__ == "__main__":
     uvicorn.run(app)
+
+    

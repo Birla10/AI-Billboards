@@ -1,26 +1,22 @@
-import React, { useRef, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import React, { useRef, useEffect, useState } from 'react';
 import NavBar from './components/NavBar';
 import UploadForm from './components/UploadForm';
 
 function App() {
   const videoWindowRef = useRef(null);
-  const navigate = useNavigate();
+  const [fullscreenRequested, setFullscreenRequested] = useState(false);
 
   useEffect(() => {
-    // Ensure the video window is only opened once
     if (!videoWindowRef.current || videoWindowRef.current.closed) {
       videoWindowRef.current = window.open(
-        "/video-display", // Opens the video route
+        "/video-display",
         "VideoDisplayWindow",
         "width=1920,height=1080,toolbar=no,menubar=no,scrollbars=no,resizable=no"
       );
 
-      // Ensure the window is brought to fullscreen (if allowed)
       setTimeout(() => {
         if (videoWindowRef.current) {
           videoWindowRef.current.focus();
-          videoWindowRef.current.document.body.requestFullscreen?.();
         }
       }, 1000);
     }
@@ -32,11 +28,23 @@ function App() {
     };
   }, []);
 
+  const requestFullscreen = () => {
+    if (videoWindowRef.current) {
+      videoWindowRef.current.document.documentElement.requestFullscreen?.();
+      setFullscreenRequested(true);
+    }
+  };
+
   return (
-    <div>
+    <div onClick={!fullscreenRequested ? requestFullscreen : null} style={{ height: "100vh", cursor: "pointer" }}>
       <NavBar />
       <main style={{ padding: "20px" }}>
         <UploadForm />
+        {!fullscreenRequested && (
+          <p style={{ textAlign: "center", color: "red" }}>
+            Click anywhere to enable fullscreen mode.
+          </p>
+        )}
       </main>
     </div>
   );

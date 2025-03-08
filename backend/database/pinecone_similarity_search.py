@@ -33,8 +33,7 @@ class SimilaritySearch:
                     common_ids.add(obj_id_prefix)
         
         return common_ids
-                 
-        
+                   
     def __search_context_index(self, index_name, query):
         
         print(f"searching index {index_name}")

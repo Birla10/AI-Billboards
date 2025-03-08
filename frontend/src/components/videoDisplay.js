@@ -6,14 +6,16 @@ const VideoDisplay = () => {
     const wsRef = useRef(null); // Keep WebSocket reference stable
 
     useEffect(() => {
-        var url = process.env.WEBSOCKET_URL;
-        wsRef.current = new WebSocket(url); 
-
+        url = process.env.WEBSOCKET_URL;
+        wsRef.current = new WebSocket(url);
+        wsRef.current.onopen = () => {
+            console.log("WebSocket Connected");
+        };
+        
         wsRef.current.onmessage = (event) => {
             const newUrl = event.data;
             console.log('Received video URL:', newUrl);
-
-            setVideoUrls((prevUrls) => [...prevUrls, newUrl]);
+            setVideoUrls([newUrl]); // Replace previous URLs to play only the latest one
         };
 
         wsRef.current.onerror = (error) => {
@@ -25,20 +27,34 @@ const VideoDisplay = () => {
         };
 
         return () => {
-            wsRef.current.close();
+            if (wsRef.current) {
+                wsRef.current.close();
+            }
         };
     }, []);
 
     useEffect(() => {
         if (videoUrls.length > 0 && videoRef.current) {
+            console.log("Setting video source:", videoUrls[0]);  
+    
             videoRef.current.src = videoUrls[0];
-            videoRef.current.play().catch(error => console.error("Video playback failed:", error));
+    
+            const playPromise = videoRef.current.play();
+    
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        console.log(" Video playback started successfully.");
+                    })
+                    .catch(error => {
+                        console.error("Video playback blocked. Trying manual play:", error);
+                        videoRef.current.muted = true;
+                        videoRef.current.play();
+                    });
+            }
         }
     }, [videoUrls]);
-
-    const handleVideoEnd = () => {
-        setVideoUrls((prevUrls) => prevUrls.slice(1)); // Remove current video and move to the next
-    };
+    
 
     return (
         <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: 'black' }}>
@@ -46,9 +62,10 @@ const VideoDisplay = () => {
                 <video
                     ref={videoRef}
                     style={{ width: '100%', height: '100%' }}
-                    onEnded={handleVideoEnd}
                     controls
                     autoPlay
+                    muted
+                    playsInline
                 />
             ) : (
                 <p style={{ color: 'white', textAlign: 'center', paddingTop: '20px' }}>

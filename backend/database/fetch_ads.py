@@ -6,7 +6,7 @@ from datetime import timedelta
 import firebase_admin
 from firebase_admin import credentials, storage
 
-from services import websocket_service
+from services.websocket_service import websocket_manager
 
 class FirebaseVideoFetcher:
     def __init__(self):
@@ -26,12 +26,15 @@ class FirebaseVideoFetcher:
         Fetches all video URLs from Firebase Storage.
         Returns a list of signed URLs valid for 1 hour.
         """
-        
+        print("fetching  videos from firebase", ads)
         file_name = f"video_ads/{ads[0]}.mp4"
         blob = self.bucket.blob(file_name)
         
         signed_url = blob.generate_signed_url(expiration=timedelta(hours=1), method='GET')
-
-        asyncio.create_task(websocket_service.send_message(signed_url))
         
+        print(signed_url)
+
+        await websocket_manager.broadcast(signed_url)
+        
+        print("successfully sent video to client")
 

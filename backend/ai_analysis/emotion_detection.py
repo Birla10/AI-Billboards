@@ -11,7 +11,7 @@ def get_emotion():
     # Start capturing video
     cap = cv2.VideoCapture(0)
     
-    run = True;
+    run = True
     
     while run:
         # Capture frame-by-frame
