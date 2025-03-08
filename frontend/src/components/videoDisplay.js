@@ -6,7 +6,7 @@ const VideoDisplay = () => {
     const wsRef = useRef(null); // Keep WebSocket reference stable
 
     useEffect(() => {
-        url = process.env.WEBSOCKET_URL;
+        const url = process.env.WEBSOCKET_URL;
         wsRef.current = new WebSocket(url);
         wsRef.current.onopen = () => {
             console.log("WebSocket Connected");
