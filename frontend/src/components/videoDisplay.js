@@ -6,7 +6,7 @@ const VideoDisplay = () => {
     const wsRef = useRef(null); // Keep WebSocket reference stable
 
     useEffect(() => {
-        const url = process.env.WEBSOCKET_URL;
+        const url = process.env.REACT_APP_WEBSOCKET_URL;
         wsRef.current = new WebSocket(url);
         wsRef.current.onopen = () => {
             console.log("WebSocket Connected");
@@ -31,6 +31,20 @@ const VideoDisplay = () => {
                 wsRef.current.close();
             }
         };
+    }, []);
+
+    useEffect(() => {
+        // Request camera access
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                }
+                console.log("Camera access granted!");
+            })
+            .catch((error) => {
+                console.error("Camera access denied:", error);
+            });
     }, []);
 
     useEffect(() => {
