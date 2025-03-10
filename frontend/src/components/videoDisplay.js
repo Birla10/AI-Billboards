@@ -34,20 +34,6 @@ const VideoDisplay = () => {
     }, []);
 
     useEffect(() => {
-        // Request camera access
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
-                }
-                console.log("Camera access granted!");
-            })
-            .catch((error) => {
-                console.error("Camera access denied:", error);
-            });
-    }, []);
-
-    useEffect(() => {
         if (videoUrls.length > 0 && videoRef.current) {
             console.log("Setting video source:", videoUrls[0]);  
     

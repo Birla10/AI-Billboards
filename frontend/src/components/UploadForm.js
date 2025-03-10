@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import "../index.css";
-import "./UploadForm.css";
+import "../css/UploadForm.css";
 
 const UploadForm = () => {
   const [file, setFile] = useState(null);
