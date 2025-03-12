@@ -1,21 +1,30 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 const VideoDisplay = () => {
-    const [videoUrls, setVideoUrls] = useState([]);
+    const [videoUrls, setVideoUrls] = useState([]); // Queue of videos
+    const [currentIndex, setCurrentIndex] = useState(0); // Track the current playing video
     const videoRef = useRef(null);
-    const wsRef = useRef(null); // Keep WebSocket reference stable
+    const wsRef = useRef(null); // WebSocket reference
+    const isPlayingRef = useRef(false); // Track if a video is playing
 
     useEffect(() => {
         const url = process.env.REACT_APP_WEBSOCKET_URL;
         wsRef.current = new WebSocket(url);
+
         wsRef.current.onopen = () => {
             console.log("WebSocket Connected");
         };
-        
+
         wsRef.current.onmessage = (event) => {
             const newUrl = event.data;
-            console.log('Received video URL:', newUrl);
-            setVideoUrls([newUrl]); // Replace previous URLs to play only the latest one
+            console.log("Received video URL:", newUrl);
+
+            // Prevent duplicate URLs & invalid URLs
+            if (newUrl && !videoUrls.includes(newUrl) && newUrl.startsWith("https")) {
+                setVideoUrls(prevUrls => [...prevUrls, newUrl]); // Append new video URL
+            } else {
+                console.warn("Ignored duplicate or invalid URL:", newUrl);
+            }
         };
 
         wsRef.current.onerror = (error) => {
@@ -35,25 +44,31 @@ const VideoDisplay = () => {
 
     useEffect(() => {
         if (videoUrls.length > 0 && videoRef.current) {
-            console.log("Setting video source:", videoUrls[0]);  
+            const videoElement = videoRef.current;
+            videoElement.src = videoUrls[currentIndex];
     
-            videoRef.current.src = videoUrls[0];
+            videoElement.oncanplay = () => {
+                console.log("Video ready to play:", videoUrls[currentIndex]);
     
-            const playPromise = videoRef.current.play();
+                const playPromise = videoElement.play();
     
-            if (playPromise !== undefined) {
-                playPromise
-                    .then(() => {
-                        console.log(" Video playback started successfully.");
-                    })
-                    .catch(error => {
-                        console.error("Video playback blocked. Trying manual play:", error);
-                        videoRef.current.muted = true;
-                        videoRef.current.play();
-                    });
-            }
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            console.log("Video playback started successfully.");
+                        })
+                        .catch(error => {
+                            if (error.name !== "NotAllowedError" && error.name !== "AbortError") {
+                                console.error("Unexpected video playback error:", error);
+                            }
+                            // Retry with mute
+                            videoElement.muted = true;
+                            videoElement.play().catch(err => console.error("Retry play failed:", err));
+                        });
+                }
+            };
         }
-    }, [videoUrls]);
+    }, [currentIndex, videoUrls]);
     
 
     return (

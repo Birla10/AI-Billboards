@@ -26,15 +26,15 @@ class FirebaseVideoFetcher:
         Fetches all video URLs from Firebase Storage.
         Returns a list of signed URLs valid for 1 hour.
         """
-        print("fetching  videos from firebase", ads)
-        file_name = f"video_ads/{ads[0]}.mp4"
-        blob = self.bucket.blob(file_name)
+        for ad in ads:
+            file_name = f"video_ads/{ads[0]}.mp4"
+            blob = self.bucket.blob(file_name)
         
-        signed_url = blob.generate_signed_url(expiration=timedelta(hours=1), method='GET')
+            signed_url = blob.generate_signed_url(expiration=timedelta(hours=1), method='GET')
         
-        print(signed_url)
+            print(signed_url)
 
-        await websocket_manager.broadcast(signed_url)
+            await websocket_manager.broadcast(signed_url)
         
-        print("successfully sent video to client")
+            print("successfully sent video to client")
 

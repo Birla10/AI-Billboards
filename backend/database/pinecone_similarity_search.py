@@ -19,20 +19,11 @@ class SimilaritySearch:
     def perform_similarity_search(self, query):
         
         # Perform similarity search in the context index
-        context_ids = self.__search_context_index(self.context_index_name, query)
-
-        obj_ids = self.__search_object_index(self.object_index_name, query)
+        context_id = self.__search_context_index(self.context_index_name, query)
+    
+        obj_id = self.__search_object_index(self.object_index_name, query)
         
-        common_ids = set()
-        
-        for obj_id in obj_ids:
-            obj_id_prefix = obj_id.split('_')[0]
-            for context_id in context_ids:
-                context_id_prefix = context_id.split('_')[0]
-                if obj_id_prefix == context_id_prefix:
-                    common_ids.add(obj_id_prefix)
-        
-        return common_ids
+        return [context_id.split('_')[0], obj_id.split('_')[0]]
                    
     def __search_context_index(self, index_name, query):
         
@@ -44,16 +35,14 @@ class SimilaritySearch:
         # Perform the query
         query_results = index.query(
             vector=query,
-            top_k=3,
+            top_k=1,
             include_metadata=True
         )
         
-        context_index_ids = {}
-        # Print the results        
-        for match in query_results.matches:
-            context_index_ids[match.id] = match.metadata.get("video_url")
-            
-        return context_index_ids
+        if query_results.matches:
+            return query_results.matches[0].id
+        else:
+            return None
     
     def __search_object_index(self, index_name, query):
         
@@ -65,13 +54,13 @@ class SimilaritySearch:
         # Perform the query
         query_results = index.query(
             vector=query,
-            top_k=3,
+            top_k=1,
             include_metadata=True
         )
         
-        obj_index_ids = {}
-        # Print the results        
-        for match in query_results.matches:
-            obj_index_ids[match.id] = match.metadata.get("video_url")
+        if query_results.matches:
+            return query_results.matches[0].id
+        else:
+            return None
             
-        return obj_index_ids
+    

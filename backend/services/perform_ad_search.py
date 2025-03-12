@@ -3,7 +3,6 @@ import numpy as np
 
 from data_fetching.weather import WeatherService
 from data_fetching.currentTime import TimeClassifier
-from ai_analysis.emotion_detection import get_emotion
 from ai_analysis.create_embeddings import CreateEmbeddings
 from database.pinecone_similarity_search import SimilaritySearch
 from database.fetch_ads import FirebaseVideoFetcher
@@ -41,6 +40,6 @@ class AdSearch:
                 # Perform similarity search
                 ads =  similaritySearch.perform_similarity_search(query_embeddings)
                 
-                await videoFetcher.fetch_videos(list(ads))
+                await videoFetcher.fetch_videos(ads)
                 
     
