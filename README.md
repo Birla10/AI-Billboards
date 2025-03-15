@@ -4,3 +4,5 @@ Billboards which work based on AI and current events like time, weather, mood of
 
 OpenAI API
 Google Cloud vision
+Pinecone
+firebase
