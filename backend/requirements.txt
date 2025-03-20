@@ -1,5 +1,5 @@
 attr==0.3.2
-clip==1.0
+clip @ git+https://github.com/openai/CLIP.git@main
 colorama==0.4.6
 ConfigParser==7.2.0
 cryptography==44.0.2
@@ -39,3 +39,4 @@ trove_classifiers==2024.7.2
 urllib3_secure_extra==0.1.0
 uvicorn==0.34.0
 xmlrpclib==1.0.1
+tf-keras
