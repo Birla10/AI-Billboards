@@ -2,10 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 
 const VideoDisplay = () => {
     const [videoUrls, setVideoUrls] = useState([]); // Queue of videos
-    const [currentIndex, setCurrentIndex] = useState(0); // Track the current playing video
     const videoRef = useRef(null);
     const wsRef = useRef(null); // WebSocket reference
-    const isPlayingRef = useRef(false); // Track if a video is playing
 
     useEffect(() => {
         const url = process.env.REACT_APP_WEBSOCKET_URL;
@@ -19,7 +17,6 @@ const VideoDisplay = () => {
             const newUrl = event.data;
             console.log("Received video URL:", newUrl);
 
-            // Prevent duplicate URLs & invalid URLs
             if (newUrl && !videoUrls.includes(newUrl) && newUrl.startsWith("https")) {
                 setVideoUrls(prevUrls => [...prevUrls, newUrl]); // Append new video URL
             } else {
@@ -40,18 +37,18 @@ const VideoDisplay = () => {
                 wsRef.current.close();
             }
         };
-    }, []);
+    }, []); // WebSocket setup runs once on mount
 
     useEffect(() => {
         if (videoUrls.length > 0 && videoRef.current) {
             const videoElement = videoRef.current;
-            videoElement.src = videoUrls[currentIndex];
-    
+            videoElement.src = videoUrls[videoUrls.length - 1]; // Always play the latest video
+
             videoElement.oncanplay = () => {
-                console.log("Video ready to play:", videoUrls[currentIndex]);
-    
+                console.log("Video ready to play:", videoElement.src);
+
                 const playPromise = videoElement.play();
-    
+
                 if (playPromise !== undefined) {
                     playPromise
                         .then(() => {
@@ -68,8 +65,7 @@ const VideoDisplay = () => {
                 }
             };
         }
-    }, [currentIndex, videoUrls]);
-    
+    }, [videoUrls]); // Dependency fixed
 
     return (
         <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: 'black' }}>
