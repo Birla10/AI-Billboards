@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import NavBar from './components/NavBar';
 import UploadForm from './components/UploadForm';
-import EmotionDetector from './components/EmotionDetector';
+
 
 function App() {
   const videoWindowRef = useRef(null);
@@ -39,7 +39,6 @@ function App() {
   return (
     <div onClick={!fullscreenRequested ? requestFullscreen : null} style={{ height: "100vh", cursor: "pointer" }}>
       <NavBar />
-      <EmotionDetector />
       <main style={{ padding: "20px" }}>
         <UploadForm />
         {!fullscreenRequested && (

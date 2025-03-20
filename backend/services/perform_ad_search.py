@@ -20,7 +20,7 @@ class AdSearch:
         
         videoFetcher =FirebaseVideoFetcher()
         
-        for emotion in ["angry", "fearful", "disgusted", "surprised"]:
+        for emotion in ["angry"]:
         #get_emotion():
             if emotion:
                 weather = WeatherService()
