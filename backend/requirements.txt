@@ -4,21 +4,18 @@ tf-keras
 geocoder
 google-cloud-vision
 google-api-core
-google-cloud-exceptions
+google-cloud-storage
 firebase-admin
 python-multipart
 python-dotenv
 torch
-geocoder
 pinecone[grpc]
 scikit-learn
-clip @ git+https://github.com/openai/CLIP.git@main
 numpy
 Pillow
 openai
 requests
 uvicorn
-asyncio
 fastapi
-numpy
 tensorflow
+git+https://github.com/openai/CLIP.git@main  # Install CLIP from GitHub
