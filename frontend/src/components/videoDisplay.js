@@ -8,36 +8,37 @@ const VideoDisplay = () => {
     useEffect(() => {
         const url = process.env.REACT_APP_WEBSOCKET_URL;
         wsRef.current = new WebSocket(url);
-
+    
         wsRef.current.onopen = () => {
             console.log("WebSocket Connected");
         };
-
+    
         wsRef.current.onmessage = (event) => {
             const newUrl = event.data;
             console.log("Received video URL:", newUrl);
-
-            if (newUrl && !videoUrls.includes(newUrl) && newUrl.startsWith("https")) {
-                setVideoUrls(prevUrls => [...prevUrls, newUrl]); // Append new video URL
-            } else {
-                console.warn("Ignored duplicate or invalid URL:", newUrl);
-            }
+    
+            setVideoUrls(prevUrls => {
+                if (newUrl && !prevUrls.includes(newUrl) && newUrl.startsWith("https")) {
+                    return [...prevUrls, newUrl]; // Append new video URL
+                }
+                return prevUrls; // Ignore duplicates
+            });
         };
-
+    
         wsRef.current.onerror = (error) => {
             console.error("WebSocket Error: ", error);
         };
-
+    
         wsRef.current.onclose = () => {
             console.log("WebSocket Disconnected");
         };
-
+    
         return () => {
             if (wsRef.current) {
                 wsRef.current.close();
             }
         };
-    }, []); // WebSocket setup runs once on mount
+    }, []);     
 
     useEffect(() => {
         if (videoUrls.length > 0 && videoRef.current) {
