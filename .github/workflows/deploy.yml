@@ -15,7 +15,7 @@ jobs:
 
       - name: Set up SSH key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ec2_key.pem
+          echo "${{ secrets.AWS_EC2_SSH_KEY }}" | tr -d '\r' > ec2_key.pem
           chmod 400 ec2_key.pem
 
       - name: Deploy Backend to EC2
