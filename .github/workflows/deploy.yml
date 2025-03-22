@@ -1,0 +1,49 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - main  
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.AWS_EC2_SSH_KEY }}" | tr -d '\r' > ec2_key.pem
+          chmod 400 ec2_key.pem
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ec2-user@18.191.162.75 << 'EOF'
+          cd /home/ec2-user
+
+          # Clone repo if it doesn't exist
+          if [ ! -d ai-billboards ]; then
+            git clone https://${{ secrets.GIT_PAT }}@github.com/Birla10/AI-Billboards.git ai-billboards
+          else
+            cd ai-billboards
+            git pull origin main
+            cd ..
+          fi
+
+          cd ai-billboards/backend
+
+          # Create the .env file
+          echo "${{ secrets.ENV_FILE }}" > .env
+          chmod 600 .env
+
+          # Stop and remove old container (if any)
+          sudo docker stop ai-billboards || true
+          sudo docker rm ai-billboards || true
+
+          # Build and run the container
+          sudo docker build -t ai-billboards .
+          sudo docker run -d --name ai-billboards --env-file .env -p 5000:5000 ai-billboards
+          EOF
+
