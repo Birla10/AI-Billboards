@@ -25,7 +25,7 @@ jobs:
 
           # Clone repo if it doesn't exist
           if [ ! -d ai-billboards ]; then
-            git clone https://${{ secrets.GIT_PAT }}@github.com/Birla10/AI-Billboards.git ai-billboards
+            git clone https://github.com/Birla10/AI-Billboards.git ai-billboards
           else
             cd ai-billboards
             git pull origin main
