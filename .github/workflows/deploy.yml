@@ -26,24 +26,37 @@ jobs:
           # Clone repo if it doesn't exist
           if [ ! -d ai-billboards ]; then
             git clone https://github.com/Birla10/AI-Billboards.git ai-billboards
-          else
-            cd ai-billboards
-            git pull origin main
-            cd ..
           fi
 
-          cd ai-billboards/backend
+          # Navigate to repo and pull latest changes
+          cd ai-billboards
+          git reset --hard HEAD
+          git pull origin main
 
-          # Create the .env file
+          # Ensure backend directory exists
+          if [ ! -d backend ]; then
+            echo "Error: backend folder does not exist!"
+            exit 1
+          fi
+          cd backend
+
+          # Create .env file
           echo "${{ secrets.ENV_FILE }}" > .env
           chmod 600 .env
 
-          # Stop and remove old container (if any)
+          # Stop and remove old container
           sudo docker stop ai-billboards || true
           sudo docker rm ai-billboards || true
+
+          # Ensure Dockerfile exists
+          if [ ! -f Dockerfile ]; then
+            echo "Error: Dockerfile not found in backend directory!"
+            exit 1
+          fi
 
           # Build and run the container
           sudo docker build -t ai-billboards .
           sudo docker run -d --name ai-billboards --env-file .env -p 5000:5000 ai-billboards
           EOF
+
 
