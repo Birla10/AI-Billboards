@@ -1,20 +1,17 @@
-# Use official Python image
-FROM python:3.11
+FROM python:3.11-slim
 
-# Set the working directory
-WORKDIR /app
-
+# Install system dependencies for OpenCV (fixes libGL.so.1 error)
 RUN apt-get update && apt-get install -y libgl1-mesa-glx
 
-# Copy and install dependencies
+# Set working directory
+WORKDIR /app
+
+# Copy and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
+# Copy the rest of the app code
 COPY . .
 
-# Expose FastAPI port
-EXPOSE 8000
-
-# Run FastAPI with Uvicorn
+# Start the server
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
