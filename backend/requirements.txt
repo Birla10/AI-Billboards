@@ -18,4 +18,5 @@ requests
 uvicorn[standard]
 fastapi
 tensorflow
+websockets
 git+https://github.com/openai/CLIP.git@main  # Install CLIP from GitHub
