@@ -18,12 +18,6 @@ jobs:
           echo "${{ secrets.AWS_EC2_SSH_KEY }}" | tr -d '\r' > ec2_key.pem
           chmod 400 ec2_key.pem
 
-      # ⬇️ Decode your .env file
-      - name: Decode and upload .env file
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
-          scp -i ec2_key.pem -o StrictHostKeyChecking=no .env ec2-user@18.191.162.75:/home/ec2-user/ai-billboards/backend/.env
-
       # ⬇️ Decode credential secrets into files
       - name: Decode Firebase and Google JSON
         run: |
@@ -55,7 +49,7 @@ jobs:
       # ⬇️ Deploy backend (clone, pull, build, run Docker)
       - name: Deploy to EC2
         run: |
-          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@18.191.162.75 << 'EOF'
+          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@18.191.162.75 << EOF
             cd /home/ec2-user
 
             if [ ! -d ai-billboards ]; then
@@ -72,6 +66,10 @@ jobs:
             fi
 
             cd backend
+
+            # ✅ Write .env file on EC2 after repo is ready
+            echo "${{ secrets.ENV_FILE }}" > .env
+            chmod 600 .env
 
             sudo docker stop ai-billboards || true
             sudo docker rm ai-billboards || true
