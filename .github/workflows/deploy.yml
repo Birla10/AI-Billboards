@@ -18,6 +18,16 @@ jobs:
           echo "${{ secrets.AWS_EC2_SSH_KEY }}" | tr -d '\r' > ec2_key.pem
           chmod 400 ec2_key.pem
 
+      - name: Decode Firebase and Google JSON
+        run: |
+          echo "${{ secrets.FIREBASE_JSON_B64 }}" | base64 -d > firebase.json
+          echo "${{ secrets.GOOGLE_CLOUD_JSON_B64 }}" | base64 -d > gcloud.json
+        
+      - name: Upload credentials to EC2
+        run: |
+          scp -i ec2_key.pem -o StrictHostKeyChecking=no firebase.json ec2-user@18.191.162.75:/home/ec2-user/ai-billboards/backend/credentials/firebase/ai-billboards-firebase.json
+          scp -i ec2_key.pem -o StrictHostKeyChecking=no gcloud.json ec2-user@18.191.162.75:/home/ec2-user/ai-billboards/backend/credentials/google_cloud/ai-billboards-gcloud.json
+
       - name: Decode SSL certs
         run: |
           echo "${{ secrets.SSL_CERT_B64 }}" | base64 -d > cert.pem
